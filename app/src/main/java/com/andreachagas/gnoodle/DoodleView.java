@@ -31,6 +31,7 @@ public class DoodleView extends View {
     // used to determine whether user moved a finger enough to draw again
     private static final float TOUCH_TOLERANCE = 10;
 
+    private Context context;
     private Bitmap bitmap; // drawing area for display or saving
     private Canvas bitmapCanvas; // used to draw on bitmap
     private Paint paintScreen; // use to draw bitmap onto screen
@@ -40,6 +41,7 @@ public class DoodleView extends View {
 
     public DoodleView(Context context, AttributeSet attrs) {
         super(context, attrs); // pass context to View's constructor
+        this.context = context;
         paintScreen = new Paint(); // used to display bitmap onto screen
 
         // set the initial display settings for the painted line
@@ -219,47 +221,7 @@ public class DoodleView extends View {
     // save the current image to the Gallery
     public void saveImage()
     {
-        // use "Gnoodle" followed by current time as the image file name
-        String fileName = "Gnoodle" + System.currentTimeMillis();
-
-        // create a ContentValues and configure new image's data
-        ContentValues values = new ContentValues();
-        values.put(Images.Media.TITLE, fileName);
-        values.put(Images.Media.DATE_ADDED, System.currentTimeMillis());
-        values.put(Images.Media.MIME_TYPE, "image/jpg");
-
-        // get a Uri for the location to save the file
-        Uri uri = getContext().getContentResolver().insert(
-                Images.Media.EXTERNAL_CONTENT_URI, values);
-
-        try
-        {
-            // get an OutputStream to uri
-            OutputStream outStream =
-                    getContext().getContentResolver().openOutputStream(uri);
-
-            // copy the bitmap to the OutputStream
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-
-            // flush and close the OutputStream
-            outStream.flush(); // empty the buffer
-            outStream.close(); // close the stream
-
-            // display a message indicating that the image was saved
-            Toast message = Toast.makeText(getContext(),
-                    R.string.message_saved, Toast.LENGTH_SHORT);
-            message.setGravity(Gravity.CENTER, message.getXOffset() / 2,
-                    message.getYOffset() / 2);
-            message.show(); // display the Toast
-        } // end try
-        catch (IOException ex)
-        {
-            // display a message indicating that the image was saved
-            Toast message = Toast.makeText(getContext(),
-                    R.string.message_error_saving, Toast.LENGTH_SHORT);
-            message.setGravity(Gravity.CENTER, message.getXOffset() / 2,
-                    message.getYOffset() / 2);
-            message.show(); // display the Toast
-        } // end catch
+        Bitmap viewBitmap = ImageGallery.getViewBitmap(((Activity)context).findViewById(R.id.container));
+        ImageGallery.saveBitmapToStorage(context, viewBitmap, "GnomeArt", "Name your gnomepiece", "Save", "Cancel");
     } // end method saveImage
 } // end class DoodleView
